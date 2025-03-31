@@ -1,6 +1,44 @@
 import numpy as np
 from typing import Union, Tuple
 
+def safe_divide_matrix(a, b, default=0):
+    """
+    安全除法，处理除零情况
+    
+    Args:
+        a: 被除数
+        b: 除数
+        default: 除零时的默认值
+        
+    Returns:
+        除法结果
+    """
+    # 创建结果数组
+    result = np.full_like(a, default, dtype=float)
+    # 使用 where 条件进行除法
+    mask = b != 0
+    result[mask] = a[mask] / b[mask]
+    return result
+
+def safe_multiply(a, b, default=0):
+    """
+    安全乘法，处理无效值
+    
+    Args:
+        a: 第一个乘数
+        b: 第二个乘数
+        default: 无效值时的默认值
+        
+    Returns:
+        乘法结果
+    """
+    # 创建结果数组
+    result = np.full_like(a, default, dtype=float)
+    # 使用 where 条件进行乘法
+    mask = ~(np.isnan(a) | np.isnan(b) | np.isinf(a) | np.isinf(b))
+    result[mask] = a[mask] * b[mask]
+    return result
+
 def histcount(data: np.ndarray, bins: Union[int, np.ndarray] = 10, 
               range: Tuple[float, float] = None) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -56,6 +94,20 @@ def example_usage():
     print("\n使用自定义边界的结果:")
     print("计数:", counts)
     print("边界:", edges)
+    
+    # 测试安全除法
+    a = np.array([[1, 2, 3], [4, 5, 6]])
+    b = np.array([[1, 0, 3], [4, 5, 0]])
+    result = safe_divide_matrix(a, b)
+    print("\n安全除法结果:")
+    print(result)
+    
+    # 测试安全乘法
+    c = np.array([[1, np.nan, 3], [4, 5, np.inf]])
+    d = np.array([[1, 2, 3], [4, 5, 6]])
+    result = safe_multiply(c, d)
+    print("\n安全乘法结果:")
+    print(result)
 
 if __name__ == "__main__":
     example_usage() 
